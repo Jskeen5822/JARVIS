@@ -11,12 +11,15 @@ from jarvis.config import SpeechOutputConfig
 class VoiceResponder:
     """Convert assistant messages to audible speech."""
 
+    _TEXT_ONLY_ENGINES = {"text", "console", "none", "silent", "off"}
+
     def __init__(self, config: SpeechOutputConfig, *, text_fallback: bool = True) -> None:
         self._config = config
         self._text_fallback = text_fallback
+        self._engine_name = (config.engine or "").lower()
 
         self._tts_engine = None
-        if config.engine.lower() == "pyttsx3" and importlib.util.find_spec("pyttsx3"):
+        if self._engine_name == "pyttsx3" and importlib.util.find_spec("pyttsx3"):
             pyttsx3 = importlib.import_module("pyttsx3")
             self._tts_engine = pyttsx3.init()
             if config.rate is not None:
@@ -28,7 +31,7 @@ class VoiceResponder:
 
         self._elevenlabs = None
         if (
-            config.engine.lower() == "elevenlabs"
+            self._engine_name == "elevenlabs"
             and config.elevenlabs_api_key
             and importlib.util.find_spec("elevenlabs")
         ):
@@ -39,6 +42,13 @@ class VoiceResponder:
     def speak(self, message: str) -> None:
         message = message.strip()
         if not message:
+            return
+
+        should_print = self._text_fallback or self._engine_name in self._TEXT_ONLY_ENGINES
+        if should_print:
+            print(f"Jarvis> {message}")
+
+        if self._engine_name in self._TEXT_ONLY_ENGINES:
             return
 
         if self._tts_engine:
@@ -55,8 +65,7 @@ class VoiceResponder:
             )
             return
 
-        if self._text_fallback:
-            print(f"Jarvis> {message}")
+        if should_print:
             return
 
         raise RuntimeError("No speech synthesis backend is available.")

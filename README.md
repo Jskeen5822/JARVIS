@@ -82,7 +82,7 @@ JARVIS/
 - `OPENAI_API_KEY` (required) powers GPT responses.
 - `ENABLE_MICROPHONE` toggles live speech capture; set to `false` for terminal text input.
 - Set `USE_WHISPER_API=true` to stream audio to Whisper; otherwise SpeechRecognition handles transcription locally.
-- Choose `VOICE_ENGINE=pyttsx3` (local) or `VOICE_ENGINE=elevenlabs` for cloud voices.
+- Choose `VOICE_ENGINE=pyttsx3` (local), `VOICE_ENGINE=elevenlabs` (cloud), or `VOICE_ENGINE=text` to keep everything in the terminal.
 - On Raspberry Pi, toggle `ENABLE_GPIO=true` and add device registration in `hardware/controller.py`.
 
 The assistant fails fast if a critical secret is missing, keeping setup issues obvious.
